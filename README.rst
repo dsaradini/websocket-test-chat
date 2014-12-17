@@ -37,11 +37,11 @@ Run python client
 Websocket message API
 =====================
 
-```json
-	{
-		"cmd": "command_uri",
-		"data" : <any:payload json serializable>
-	}
+```javascript
+{
+	"cmd": "command_uri",
+	"data" : <any:payload json serializable>
+}
 ```
 
 Demo API
@@ -50,21 +50,21 @@ Demo API
 
 Sent message
 
-```json
-	{
-		"cmd": "ch.exodoc.send_message",
-		"data": <string:message>
-	}
+```javascript
+{
+	"cmd": "ch.exodoc.send_message",
+	"data": "<string:message>"
+}
 ```
 
 Receive message
 
-```json
-	{
-		"cmd": "ch.exodoc.new_message",
-		"data": {
-			"user": "User name",
-			"text": "Text from user"
-		}
+```javascript
+{
+	"cmd": "ch.exodoc.new_message",
+	"data": {
+		"user": "User name",
+		"text": "Text from user"
 	}
+}
 ```
