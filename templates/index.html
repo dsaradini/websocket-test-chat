@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="eng" ng-app="chatApp">
+	<head>
+		<script src="/static/js/jquery-1.11.1.min.js"></script>
+		<script src="/static/js/angular-1.3.7.min.js"></script>
+		<script src="/static/src/ws_client.js"></script>
+		<script src="/static/src/app.js"></script>
+	</head>
+
+	<body ng-controller="MessageListCtrl" ng-init="init('{{ws_url}}?name={{name}}')">
+		<div class="comments">
+			<div class="comment-entry" ng-repeat="comment in comments">
+				[<strong>{& comment.author &}</strong>]
+				&nbsp;
+				<span>{& comment.text &}</span>
+			</div>
+		</div>
+		<textarea ng-model="comment_text" ng-enter="submit()">
+
+		</textarea>
+		<button ng-click="submit()">Submit</button>
+	</body>
+</html>

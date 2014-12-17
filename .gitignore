@@ -1,0 +1,38 @@
+# Mac OS X
+.DS_Store
+
+# Eclipse
+.settings
+
+# Java
+classes
+
+# Android
+bin
+gen
+
+# Xcode noise
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserstate
+project.xcworkspace/
+xcuserdata/
+build
+*~.nib
+
+# vi backup files
+*~
+
+# python bytecode
+*.pyc
+
+# python
+env/
+
+# Redis
+dump.rdb
+
+# Jetbrain
+.idea

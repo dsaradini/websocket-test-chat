@@ -1,0 +1,4 @@
+autobahn[asyncio,accelerate,compress,serialization]==0.9.3-3
+asyncio_redis==0.13.4
+Flask==0.10.1
+websockets==2.3
