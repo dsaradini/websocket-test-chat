@@ -2,8 +2,11 @@ Install
 =======
 
 	> pyvenv env
+
 	> source env/bin/activate
+
 	> pip install -r requirments.txt
+
 
 Run
 ====
@@ -13,6 +16,7 @@ Run Server
 ----------
 
 	> source env/bin/activate
+
 	> Make run
 
 
@@ -26,16 +30,19 @@ Run python client
 -----------------
 
 	> source env/bin/activate
+
 	> python ws_client.py
 
 
 Websocket message API
 =====================
 
+```json
 	{
 		"cmd": "command_uri",
 		"data" : <any:payload json serializable>
 	}
+```
 
 Demo API
 --------
@@ -43,13 +50,16 @@ Demo API
 
 Sent message
 
+```json
 	{
 		"cmd": "ch.exodoc.send_message",
 		"data": <string:message>
 	}
+```
 
 Receive message
 
+```json
 	{
 		"cmd": "ch.exodoc.new_message",
 		"data": {
@@ -57,3 +67,4 @@ Receive message
 			"text": "Text from user"
 		}
 	}
+```
