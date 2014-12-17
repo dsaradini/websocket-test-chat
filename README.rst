@@ -1,11 +1,11 @@
 Install
 =======
 
-	> pyvenv env
+> pyvenv env
 
-	> source env/bin/activate
+> source env/bin/activate
 
-	> pip install -r requirments.txt
+> pip install -r requirments.txt
 
 
 Run
@@ -15,9 +15,9 @@ Run
 Run Server
 ----------
 
-	> source env/bin/activate
+> source env/bin/activate
 
-	> Make run
+> Make run
 
 
 Run web client
@@ -29,9 +29,9 @@ Open browser at http://localhost:5000/<my_user_nam>
 Run python client
 -----------------
 
-	> source env/bin/activate
+> source env/bin/activate
 
-	> python ws_client.py
+> python ws_client.py
 
 
 Websocket message API
