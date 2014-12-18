@@ -33,10 +33,38 @@ chatApp.controller('MessageListCtrl', ['$scope',
 		$scope.init = function(ws_url) {
 			$scope.client = new WSClient();
 			$scope.client.register("ch.exodoc.new_message", function(data) {
+				var node = $(".chat-box")[0];
+				// check if the scroll is at the bottom
+				var shouldScrollBottom = node.scrollTop + node.offsetHeight === node.scrollHeight;
 				$scope.$apply(function() {
 					$scope.comments.push({
+						system: false,
 						author: data.user,
-						text: data.text
+						text: data.text,
+						date: new Date(data.date),
+						self: data.self,
+						img_url: 'http://www.gravatar.com/avatar/' + md5(data.user)+"?s=48&d=retro"
+					});
+				});
+				setTimeout(function() {
+					if (shouldScrollBottom) {
+						node.scrollTop = node.scrollHeight;
+					}
+				}, 1);
+			});
+			$scope.client.register("ch.exodoc.join", function(data) {
+				$scope.$apply(function() {
+					$scope.comments.push({
+						system: true,
+						text: data.user+" joined the chat"
+					});
+				});
+			});
+			$scope.client.register("ch.exodoc.leave", function(data) {
+				$scope.$apply(function() {
+					$scope.comments.push({
+						system: true,
+						text: data.user+" leaved the chat"
 					});
 				});
 			});

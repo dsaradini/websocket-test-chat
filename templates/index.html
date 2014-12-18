@@ -1,23 +1,44 @@
 <!doctype html>
 <html lang="eng" ng-app="chatApp">
 	<head>
+		<link rel="stylesheet" href="/static/css/bootstrap.min.css">
+		<link rel="stylesheet" href="/static/css/app.css">
 		<script src="/static/js/jquery-1.11.1.min.js"></script>
 		<script src="/static/js/angular-1.3.7.min.js"></script>
+		<script src="/static/js/md5.js"></script>
+
 		<script src="/static/src/ws_client.js"></script>
 		<script src="/static/src/app.js"></script>
 	</head>
 
 	<body ng-controller="MessageListCtrl" ng-init="init('{{ws_url}}?ticket={{ws_ticket}}')">
-		<div class="comments">
-			<div class="comment-entry" ng-repeat="comment in comments">
-				[<strong>{& comment.author &}</strong>]
-				&nbsp;
-				<span>{& comment.text &}</span>
+		<div class="chat-container">
+			<div class="chat-box">
+				<h4 class="text-center">Super 'tchat' box</h4>
+				<div class="comments">
+					<div class="comment-entry" ng-repeat="comment in comments">
+						<div ng-if="comment.system">
+							<small class="text-muted">{& comment.text &}</small>
+						</div>
+						<div ng-if="!comment.system" class="media">
+							<a class="media-left" href="#">
+								<img src="{& comment.img_url &}" alt="{& comment.author &}">
+							</a>
+							<div class="media-body">
+									<div>
+									<strong class="media-heading text-success">{& comment.author &}</strong>
+									&nbsp;
+									<small class="text-muted">{& comment.date | date: 'medium' &}</small>
+								</div>
+								<p class="comment">{& comment.text &}</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="text-box">
+				<textarea placeholder="Enter text here" ng-model="comment_text" ng-enter="submit()"></textarea>
 			</div>
 		</div>
-		<textarea ng-model="comment_text" ng-enter="submit()">
-
-		</textarea>
-		<button ng-click="submit()">Submit</button>
 	</body>
 </html>

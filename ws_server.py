@@ -2,6 +2,7 @@ import asyncio
 import json
 import websockets
 import asyncio_redis
+from datetime import datetime
 from urllib.parse import urlparse, parse_qs
 
 from dispatcher import ws_message, handle_message, send_message
@@ -16,16 +17,39 @@ logger.addHandler(logging.StreamHandler())
 CLIENTS = []
 
 @ws_message("ch.exodoc.send_message")
-def send_chat(websocker, msg):
+def broadcast_chat(websocket, msg):
     for c in CLIENTS:
         send_message(c, "ch.exodoc.new_message", {
             'text': msg.strip(),
-            'user': websocker._user_name
+            'user': websocket._user_name,
+            'date': datetime.now().isoformat(),
+            'self': (websocket == c)
         })
 
 
 @asyncio.coroutine
+def broadcast_join(websocket):
+    for c in CLIENTS:
+        send_message(c, "ch.exodoc.join", {
+            'user': websocket._user_name
+        })
+
+
+@asyncio.coroutine
+def broadcast_leave(websocket):
+    for c in CLIENTS:
+        if websocket != c:
+            send_message(c, "ch.exodoc.leave", {
+                'user': websocket._user_name
+            })
+
+
+@asyncio.coroutine
 def get_ticket_info(ticket):
+    if ticket == "_test":
+        return {
+            'username': "TEST"
+        }
     # Create Redis connection
     connection = yield from asyncio_redis.Connection.create(
         host='localhost', port=6379)
@@ -53,6 +77,7 @@ def ws_handler(websocket, path):
     websocket._user_name = ticket_info['username']
     CLIENTS.append(websocket)
     logger.info("New client: {} - {}".format(repr(websocket), path))
+    yield from broadcast_join(websocket)
     while True:
         message = yield from websocket.recv()
         if message is None:
@@ -64,6 +89,7 @@ def ws_handler(websocket, path):
                 logger.error("Receive error: {}".format(ex))
     logger.info("Client disconnected: {}".format(websocket))
     CLIENTS.remove(websocket)
+    yield from broadcast_leave(websocket)
 
 
 def do_start():
