@@ -26,7 +26,7 @@ Run web client
 Open browser at http://localhost:5000/<my_user_nam>
 
 
-*** For HTTP client, the ticket is generated server side, there is no need for authentication***
+**For HTTP client, the ticket is generated server side, there is no need for authentication**
 
 
 Run python client
@@ -56,9 +56,16 @@ with application/json content
 }
 ```
 
+result
+
+```javascript
+{
+	'ticket': "MY_SECRET_TICKET"
+}
+```
 And use the ticket to connect ot the websocket.
 
-***Ticket is valid 1 minutes***
+**Ticket is valid 1 minutes**
 
 Websocket url: http://localhost:8128/ws?ticket=<login-ticket>
 
