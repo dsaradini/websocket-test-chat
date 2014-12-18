@@ -1,5 +1,7 @@
 import asyncio
+import json
 import websockets
+import asyncio_redis
 from urllib.parse import urlparse, parse_qs
 
 from dispatcher import ws_message, handle_message, send_message
@@ -23,11 +25,32 @@ def send_chat(websocker, msg):
 
 
 @asyncio.coroutine
+def get_ticket_info(ticket):
+    # Create Redis connection
+    connection = yield from asyncio_redis.Connection.create(
+        host='localhost', port=6379)
+
+    # Set a key
+    key = 'ch.exodoc:{}'.format(ticket)
+    data = yield from connection.get(key)
+    logger.debug("DATA : {} = {}".format(key, data))
+    # When finished, close the connection.
+    connection.close()
+    return json.loads(data) if data else None
+
+
+@asyncio.coroutine
 def ws_handler(websocket, path):
     url_info = urlparse(path)
     query = parse_qs(url_info.query)
-    name = query.get("name", ["anonymous"])
-    websocket._user_name = name[0]
+    ticket = query.get("ticket", None)
+    if not ticket:
+        raise Exception("Missing ticket")
+    else:
+        ticket_info = yield from get_ticket_info(ticket[0])
+        if not ticket_info:
+            raise Exception("Bad ticket")
+    websocket._user_name = ticket_info['username']
     CLIENTS.append(websocket)
     logger.info("New client: {} - {}".format(repr(websocket), path))
     while True:

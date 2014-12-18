@@ -1,4 +1,5 @@
 import asyncio
+import requests
 import websockets
 import sys
 from threading import local
@@ -13,20 +14,21 @@ logger.addHandler(logging.StreamHandler())
 
 websocket = local()
 
+
 @ws_message("ch.exodoc.new_message")
 def receive_chat(websocket, msg):
     print("\r[{}] {}".format(msg['user'], msg['text']))
 
 
 @asyncio.coroutine
-def _connect(name):
+def _connect(ticket):
     while not hasattr(websocket, "value"):
         try:
             websocket.value = yield from websockets.connect(
-                'ws://{}:{}/?name={}'.format(
+                'ws://{}:{}/?ticket={}'.format(
                     ws_const.CONNECT_ADDRESS,
                     ws_const.PORT,
-                    name
+                    ticket
                 ))
         except ConnectionRefusedError:
             print("Retry connection")
@@ -34,10 +36,11 @@ def _connect(name):
 
 
 @asyncio.coroutine
-def message_handler(name='anonymous'):
+def message_handler(name):
     while asyncio.get_event_loop().is_running():
-        yield from _connect(name)
-        print("Connected to server as {}".format(name))
+        ticket = yield from login(name, "cool")
+        yield from _connect(ticket)
+        print("Connected to server with ticket {}".format(ticket))
         while True:
             msg = yield from websocket.value.recv()
             if msg:
@@ -59,8 +62,20 @@ def input_handle(line):
     else:
         logger.info("Not connected yet")
 
+
+@asyncio.coroutine
+def login(username, password):
+    response = yield from asyncio.get_event_loop().run_in_executor(
+        None, requests.post, 'http://localhost:5000/token', None, {
+            'username': username,
+            'password': password
+        })
+    return response.json()['ticket']
+
+
 if __name__ == "__main__":
-    name = "python_client"
+    print("Username:")
+    name = sys.stdin.readline().strip()
     loop = asyncio.get_event_loop()
     try:
         loop.add_reader(

@@ -7,7 +7,7 @@
 		<script src="/static/src/app.js"></script>
 	</head>
 
-	<body ng-controller="MessageListCtrl" ng-init="init('{{ws_url}}?name={{name}}')">
+	<body ng-controller="MessageListCtrl" ng-init="init('{{ws_url}}?ticket={{ws_ticket}}')">
 		<div class="comments">
 			<div class="comment-entry" ng-repeat="comment in comments">
 				[<strong>{& comment.author &}</strong>]
