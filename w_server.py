@@ -1,12 +1,30 @@
 from uuid import uuid4
+from pbkdf2 import crypt
 
 from flask import (Flask, render_template, redirect, jsonify, request,
                    abort, json)
 import redis
 import settings as ws_const
 
+
 app = Flask(__name__)
 client = redis.StrictRedis(host='localhost', port=6379, db=0)
+
+
+def authenticate(username, password):
+    with open("users.json", mode="r") as f:
+        users = json.loads(f.read())
+        user = users.get(username, None)
+    if user:
+        if user['password'] == crypt(password, user['password']):
+            return {
+                "username": username,
+                "full_name": user['full_name']
+            }
+    else:
+        # constant time checker
+        crypt(password)
+    abort(401, "Bad username or password")
 
 
 def create_ticker(username):
@@ -14,7 +32,8 @@ def create_ticker(username):
     redis_data = {
         "username": username
     }
-    client.set("ch.exodoc:{}".format(ticket), json.dumps(redis_data), ex=60)
+    client.set("ch.exodoc:{}".format(ticket), json.dumps(redis_data),
+               ex=ws_const.WS_TICKET_TT)
     return ticket
 
 
@@ -27,9 +46,10 @@ def root():
 def _():
     username = request.json['username']
     password = request.json['password']
-    if password != "cool":
+    user = authenticate(username, password)
+    if not user:
         abort(401)
-    ticket = create_ticker(username)
+    ticket = create_ticker(user['username'])
     return jsonify({
         "ticket": ticket
     })
@@ -47,4 +67,3 @@ def application(name="anonymous"):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
-

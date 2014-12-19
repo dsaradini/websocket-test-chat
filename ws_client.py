@@ -1,4 +1,5 @@
 import asyncio
+import getpass
 import requests
 import websockets
 import sys
@@ -14,10 +15,20 @@ logger.addHandler(logging.StreamHandler())
 
 websocket = local()
 
-
+# Registered action in realm
 @ws_message("ch.exodoc.new_message")
 def receive_chat(websocket, msg):
     print("\r[{}] {}".format(msg['user'], msg['text']))
+
+
+@ws_message("ch.exodoc.join")
+def join_chat(websocket, msg):
+    print("\r* User '{}' joined the chat".format(msg['user']))
+
+
+@ws_message("ch.exodoc.leave")
+def leave_chat(websocket, msg):
+    print("\r* User '{}' leave the chat".format(msg['user']))
 
 
 @asyncio.coroutine
@@ -36,9 +47,9 @@ def _connect(ticket):
 
 
 @asyncio.coroutine
-def message_handler(name):
+def message_handler(username, password):
     while asyncio.get_event_loop().is_running():
-        ticket = yield from login(name, "cool")
+        ticket = yield from login(username, password)
         yield from _connect(ticket)
         print("Connected to server with ticket {}".format(ticket))
         while True:
@@ -70,19 +81,31 @@ def login(username, password):
             'username': username,
             'password': password
         })
+    if response.status_code not in [200, 201]:
+        raise Exception("Unable to login, bad username or password")
     return response.json()['ticket']
 
 
+@asyncio.coroutine
+def pinger():
+    while True:
+        if hasattr(websocket, "value"):
+            send_message(websocket.value, '_ping')
+        yield from asyncio.sleep(2)
+
+
 if __name__ == "__main__":
-    print("Username:")
-    name = sys.stdin.readline().strip()
+    username = input("Username:").strip()
+    password = getpass.getpass("Password:")
     loop = asyncio.get_event_loop()
+    loop.set_debug(True)
     try:
         loop.add_reader(
             sys.stdin.fileno(),
             lambda *args: asyncio.async(input_handle(sys.stdin.readline()))
         )
-        loop.run_until_complete(message_handler(name))
+        asyncio.async(message_handler(username, password), loop=loop)
+        asyncio.async(pinger(), loop=loop)
         loop.run_forever()
     except KeyboardInterrupt:
         pass

@@ -8,3 +8,5 @@ SECRET = u'L3L1YUE8Txlw'
 
 MSG_SEND_MESSAGE = u'ch.epyx.exodoc.send_message'
 MSG_AUTHENTICATE = u'ch.epyx.exodoc.auth-ticket'
+
+WS_TICKET_TT = 3600  # one hour

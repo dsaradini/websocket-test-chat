@@ -5,7 +5,7 @@ import asyncio_redis
 from datetime import datetime
 from urllib.parse import urlparse, parse_qs
 
-from dispatcher import ws_message, handle_message, send_message
+from dispatcher import ws_message, handle_message, send_message, response
 import settings as ws_const
 
 import logging
@@ -15,6 +15,11 @@ logger.addHandler(logging.StreamHandler())
 
 
 CLIENTS = []
+
+@ws_message("_ping")
+def _ping(websocket, msg):
+    return response("_pong")
+
 
 @ws_message("ch.exodoc.send_message")
 def broadcast_chat(websocket, msg):
