@@ -19,6 +19,15 @@ Run Server
 
 > Make run
 
+Create user
+-----------
+
+> source env/bin/activate
+
+> Make user
+
+And input the requested values. For the demo, the users are stored in a file "users.json".
+
 
 Run web client
 --------------
