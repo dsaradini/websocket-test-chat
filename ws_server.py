@@ -1,4 +1,5 @@
 import asyncio
+from collections import defaultdict
 import json
 import websockets
 import asyncio_redis
@@ -10,11 +11,25 @@ import settings as ws_const
 
 import logging
 logger = logging.getLogger('websockets.server')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 
 CLIENTS = []
+BY_USER_CLIENTS = defaultdict(list)
+
+
+def add_client(client):
+    CLIENTS.append(client)
+    BY_USER_CLIENTS[client._user_name].append(client)
+    logger.info("New client: {}".format(client._user_name))
+
+
+def remove_client(client):
+    CLIENTS.remove(client)
+    BY_USER_CLIENTS[client._user_name].remove(client)
+    logger.info("Client disconnected: {}".format(client._user_name))
+
 
 @ws_message("_ping")
 def _ping(websocket, msg):
@@ -80,8 +95,7 @@ def ws_handler(websocket, path):
         if not ticket_info:
             raise Exception("Bad ticket")
     websocket._user_name = ticket_info['username']
-    CLIENTS.append(websocket)
-    logger.info("New client: {} - {}".format(repr(websocket), path))
+    add_client(websocket)
     yield from broadcast_join(websocket)
     while True:
         message = yield from websocket.recv()
@@ -92,8 +106,7 @@ def ws_handler(websocket, path):
                 handle_message(websocket, message)
             except Exception as ex:
                 logger.error("Receive error: {}".format(ex))
-    logger.info("Client disconnected: {}".format(websocket))
-    CLIENTS.remove(websocket)
+    remove_client(websocket)
     yield from broadcast_leave(websocket)
 
 

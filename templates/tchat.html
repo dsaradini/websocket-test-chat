@@ -14,7 +14,7 @@
 	<body ng-controller="MessageListCtrl" ng-init="init('{{ws_url}}?ticket={{ws_ticket}}')">
 		<div class="chat-container">
 			<div class="chat-box">
-				<h4 class="text-center">Super 'tchat' box</h4>
+				<h4 class="text-center">tChatbox {{name}}  <a class="pull-right btn btn-default btn-xs" href="{{ url_for('logout') }}">Logout</a></h4>
 				<div class="comments">
 					<div class="comment-entry" ng-repeat="comment in comments">
 						<div ng-if="comment.system">
